@@ -1,0 +1,32 @@
+{
+	admin off
+	auto_https off
+	persist_config off
+}
+
+:{$PORT} {
+	log {
+		output stdout
+		format console
+		level INFO
+	}
+
+	@health path /healthz
+	handle @health {
+		respond "ok" 200
+	}
+
+	@authorized header Authorization "Bearer {$MCP_AUTH_TOKEN}"
+	handle @authorized {
+		reverse_proxy 127.0.0.1:8765 {
+			flush_interval -1
+			header_up Host 127.0.0.1:8765
+			header_up -Authorization
+		}
+	}
+
+	handle {
+		header WWW-Authenticate "Bearer"
+		respond "unauthorized" 401
+	}
+}
