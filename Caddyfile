@@ -5,12 +5,6 @@
 }
 
 :{$PORT} {
-	log {
-		output stdout
-		format console
-		level INFO
-	}
-
 	@health path /healthz
 	handle @health {
 		respond "ok" 200
